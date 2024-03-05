@@ -2,10 +2,12 @@
 import { SettingType, Settings } from '@orilight/vue-settings'
 
 const exchangeRate = ref<{ [key: string]: number }>({})
+const exchangeRateApi = 'https://api.amarea.cn/exchange/{{currency}}'
 const statusText = ref('数据获取中')
-const api = 'https://api.amarea.cn/exchange/CNY'
+const baseCurrency = ref('CNY')
 const currencyList = ['USD', 'JPY', 'HKD', 'SGD', 'EUR', 'TWD']
 const currencyName: { [key: string]: string } = {
+  CNY: '人民币',
   USD: '美元',
   JPY: '日元',
   HKD: '港元',
@@ -18,7 +20,7 @@ const boardData = ref('')
 const setting = new Settings('exchange-board')
 
 function fetchData() {
-  fetch(api)
+  fetch(exchangeRateApi.replace('{{currency}}', baseCurrency.value))
     .then(res => res.json())
     .then((data) => {
       if (data.code !== 0)
@@ -33,7 +35,11 @@ function fetchData() {
 }
 
 function reverse(rate: number | string) {
-  return Number((1 / Number(rate)).toFixed(3))
+  return 1 / Number(rate)
+}
+
+function format(num: number) {
+  return num.toFixed(3)
 }
 
 function updateBoard() {
@@ -86,7 +92,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="p-4">
+  <div class="p-4 font-sans">
     <div class="p-4 bg-green-200 mb-4 rounded-lg">
       <h1 class="font-bold text-4xl pb-4">
         汇率看板
@@ -103,8 +109,8 @@ onMounted(() => {
         <div class="font-bold text-lg">
           {{ currencyName[currency] }}
         </div>
-        1 CNY = {{ exchangeRate[currency] }} {{ currency }}<br>
-        1 {{ currency }} = {{ reverse(exchangeRate[currency]) }} CNY
+        1 {{ baseCurrency }} = {{ exchangeRate[currency] }} {{ currency }}<br>
+        1 {{ currency }} = {{ format(reverse(exchangeRate[currency])) }} {{ baseCurrency }}
       </div>
     </div>
 
@@ -115,18 +121,15 @@ onMounted(() => {
       >
         <div v-for="i in board.split(' ')" :key="i">
           {{ i.split(':')[1] }} {{ i.split(':')[0] }} =
-          {{ (Number(i.split(':')[1]) / exchangeRate[i.split(':')[0]]).toFixed(3) }} CNY
+          {{ format(Number(i.split(':')[1]) / exchangeRate[i.split(':')[0]]) }} {{ baseCurrency }}
         </div>
       </div>
     </div>
     <details class="bg-gray-200 rounded-lg p-4">
       <summary>编辑看板</summary>
       <div class="mt-2">
-        <textarea v-model="boardData" rows="5" class="w-full p-2 rounded-lg" />
+        <textarea v-model="boardData" rows="5" class="w-full p-2 rounded-lg" @input="updateBoard" />
         <div class="flex flex-wrap gap-2">
-          <button class="bg-white px-4 py-2 rounded-lg transition-all hover:scale-105" @click="updateBoard">
-            保存
-          </button>
           <button class="bg-white px-4 py-2 rounded-lg transition-all hover:scale-105" @click="exportData">
             导出
           </button>
