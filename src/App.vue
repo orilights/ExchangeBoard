@@ -26,7 +26,7 @@ function fetchData() {
       if (data.code !== 0)
         throw new Error(data.msg)
       exchangeRate.value = data.rates
-      statusText.value = `数据更新日期: ${data.date}`
+      statusText.value = `数据更新日期: ${data.date} (UTC)`
     })
     .catch((err) => {
       console.error(err)
