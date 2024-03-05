@@ -4,13 +4,14 @@ import { SettingType, Settings } from '@orilight/vue-settings'
 const exchangeRate = ref<{ [key: string]: number }>({})
 const statusText = ref('数据获取中')
 const api = 'https://api.amarea.cn/exchange/CNY'
-const currencyList = ['USD', 'JPY', 'HKD', 'SGD', 'EUR']
+const currencyList = ['USD', 'JPY', 'HKD', 'SGD', 'EUR', 'TWD']
 const currencyName: { [key: string]: string } = {
   USD: '美元',
   JPY: '日元',
   HKD: '港元',
   SGD: '新加坡元',
   EUR: '欧元',
+  TWD: '新台币',
 }
 const boardList = ref(['USD:1 HKD:10 JPY:100', 'USD:3 HKD:25 JPY:500', 'JPY:200 JPY:400 JPY:800'])
 const boardData = ref('')
